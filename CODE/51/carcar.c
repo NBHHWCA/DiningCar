@@ -37,22 +37,22 @@ unsigned char WirelessOutput;
 void main()
 {
 	initPins();//some pins  inital status
-	initSerial();
-	IE = 0;
+	initSerial();//serial attribute init
+	IE = 0;	
 	while(1)//push the button to start car
 	{
 		if(BUTTON1 == 0)
 		{
-				getLED1();
-				break;
+			getLED1();
+			break;
 		}
 	}
 	while(1)//start loop
 	{				
 		if(BUTTON2 == 0)//to detective the weight
 		{
-				getLED2();
-				//getBuzzer();
+			getLED2();
+			//getBuzzer();
 		}
 		Mode = getMode();//1-6 choose a mode
 		sentMode();
@@ -76,7 +76,7 @@ void initPins()
 	MODE2 = 1;
 	MODE3 = 1;
 	MODE4 = 1;
-	MODE5 = 1;
+	MODE5 = 1;	
 	MODE6 = 1;
 	WirelessInpute = 0;// not sure!!!
 	WirelessOutput = 0;
@@ -87,13 +87,13 @@ void initSerial() //for  data trans
 	TL1=250; //
 	TH1=250;
 	TR1=1; //time start
-	PCON=0x80; //SMOD=1;
+	PCON=0x80; //SMOD=1	
 	SCON=0x50; //9600bit/s 
 	TI=1;
 }
-void sendMode()
+void sendMode()//output data
 {
-	if(TI == 1)//output  ready??
+	if(TI == 1)//output  ready??     a reg for interpret   is interpreted
 	{
 		if(Flag==1) //have receive the data?
 		{
@@ -103,16 +103,16 @@ void sendMode()
 		}
 	}
 }
-void receiveMove()
+void receiveMove()//inpute data
 {
-	if(RI==1)//oh   data is coming
+	if(RI==1)//oh data is coming
 	{
 		Move = SBUF;
 		Flag = 1;
 		RI = 0;
 	}
 }
-void startMove():
+void startMove()
 {
 	switch(Move)
 	{
@@ -125,49 +125,48 @@ void startMove():
 		default :break;
 	}
 }
-void carGoStraight():
+void carGoStraight()
 {
 	LEFT_BI = 0;
 	LEFT_FI = 1;
 	RIGHT_BI = 0;
 	RIGHT_FI = 1;
 }
-void carGOLeft():
+void carGOLeft()
 {
 	LEFT_BI = 0;
 	LEFT_FI = 0;
 	RIGHT_BI = 0;
 	RIGHT_FI = 1;
 }
-void carGoRight():
+void carGoRight()
 {
 	LEFT_BI = 0;
 	LEFT_FI = 1;
 	RIGHT_BI = 0;
 	RIGHT_FI = 0;
 }
-void carBackStraight():
+void carBackStraight()
 {
 	LEFT_BI = 1;
 	LEFT_FI = 0;
 	RIGHT_BI = 1;
 	RIGHT_FI = 0;
 }
-void carBackLeft():
+void carBackLeft()
 {
 	LEFT_BI = 0;
 	LEFT_FI = 0;
 	RIGHT_BI = 1;
 	RIGHT_FI = 0;
 }
-void carBackRight():
+void carBackRight()
 {
 	LEFT_BI = 1;
 	LEFT_FI = 0;
 	RIGHT_BI = 0;
 	RIGHT_FI = 0;
 }
-
 void getLED1()
 {
 	LED1 = 1;
@@ -180,7 +179,6 @@ void getBuzzer()
 {
 	BUZZER = 1;
 }
-
 unsigned char getMode()
 {
 	unsigned char Mode = 0x21 ;//!
@@ -226,6 +224,10 @@ void getWirelessInput()//wireless part
 void getWirelessOutput()
 {
 	
+}
+void getDelay(int TIME_BY_MS)
+{
+
 }
 
 
