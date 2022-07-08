@@ -86,7 +86,7 @@ void initSerial() //for  data trans
 	TMOD=0x20; //timer  T1 work_mode 2
 	TL1=250; //
 	TH1=250;
-	TR1=1; //time start
+	TR1=1; //timer1 start
 	PCON=0x80; //SMOD=1	
 	SCON=0x50; //9600bit/s 
 	TI=1;
@@ -225,9 +225,25 @@ void getWirelessOutput()
 {
 	
 }
-void getDelay(int TIME_BY_MS)
+void getDelay(int TIME_BY_S)//copy from stc-isp   danwei:s
 {
+	unsigned char i, j, k;
 
+	_nop_();
+	_nop_();
+	i = 43;
+	j = 6;
+	k = 203;
+	while(TIME_BY_S--)
+	{
+		do
+		{
+			do
+			{
+				while (--k);
+			} while (--j);
+		} while (--i);
+	}
 }
 
 
