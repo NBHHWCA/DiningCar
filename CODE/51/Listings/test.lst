@@ -1,0 +1,338 @@
+C51 COMPILER V9.59.0.0   TEST                                                              07/12/2022 16:20:29 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE TEST
+OBJECT MODULE PLACED IN .\Objects\test.obj
+COMPILER INVOKED BY: E:\enviroment\Keiil5\C51\BIN\C51.EXE test.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Lis
+                    -tings\test.lst) TABS(2) OBJECT(.\Objects\test.obj)
+
+line level    source
+
+   1          #include "wca.h"
+   2          
+   3          //mode choice
+   4          sbit MODE1 = P0^0;
+   5          sbit MODE2 = P0^1;
+   6          sbit MODE3 = P0^2;
+   7          sbit MODE4 = P0^3;
+   8          sbit MODE5 = P0^4;
+   9          sbit MODE6 = P0^5;
+  10          //little toy
+  11          sbit LED1 = P1^0;
+  12          sbit LED2 = P1^1;
+  13          sbit BUZZER = P1^2;
+  14          sbit BUTTON1 = P2^7;
+  15          sbit BUTTON2 = P2^4;
+  16          //the car
+  17          sbit LEFT_BI = P2^3;
+  18          sbit LEFT_FI = P2^2;
+  19          sbit RIGHT_BI = P2^1;
+  20          sbit RIGHT_FI = P2^0;
+  21          sbit LEFT_H1 = P3^5;
+  22          sbit LEFT_H2 = P3^3;//int0
+  23          sbit RIGTH_H1 = P3^4;
+  24          sbit RIGHT_H2 = P3^2;//int1
+  25          //others
+  26          sbit SET = P3^6;//wireless part setting
+  27          sbit CS = P3^7;//wireless part sleep
+  28          sbit RST = P5^4;
+  29          sbit TXD = P3^1;
+  30          sbit RXD = P3^0;
+  31          
+  32          unsigned char Mode;// sent to cam
+  33          unsigned char Move;//receive from cam
+  34          unsigned char Flag;//1 = have received data
+  35          unsigned char WirelessInpute;//this two only for wireless part
+  36          unsigned char WirelessOutput;
+  37          void initPins();
+  38          void initSerial();
+  39          void sendMode();
+  40          void receiveMove();
+  41          void startMove();
+  42          void carStop();
+  43          void carGoStraight();
+  44          void carGOLeft();
+  45          void carGoRight();
+  46          void carBackStraight();
+  47          void carBackLeft();
+  48          void carBackRight();
+  49          void getLED1On();
+  50          void getLED2On();
+  51          void getLED1Off();
+  52          void getLED2Off();
+  53          void getBuzzerOn();
+  54          void getBuzzerOff();
+C51 COMPILER V9.59.0.0   TEST                                                              07/12/2022 16:20:29 PAGE 2   
+
+  55          unsigned char getMode();
+  56          void getWirelessInput();
+  57          void getWirelessOutput();
+  58          void getDelay(int TIME_BY_S);
+  59          void main()
+  60          {
+  61   1        initPins();//some pins  inital status
+  62   1        initSerial();//serial attribute init
+  63   1        IE = 0; // ping bi zhong duan
+  64   1        while(1)//start loop
+  65   1        {   
+  66   2          // carGoStraight(); 
+  67   2          // getDelay(2000);
+  68   2          // carStop();
+  69   2          // getDelay(3000);
+  70   2          carGOLeft();
+  71   2          getDelay(280);
+  72   2          carStop();
+  73   2          getDelay(2000);
+  74   2          // carGoStraight();
+  75   2          // // LED1 = LEFT_BI;
+  76   2          // // LED2 = RIGHT_BI;
+  77   2          // LED1 = 1;
+  78   2              // getDelay(1);
+  79   2              // LED1 = 0;
+  80   2              // LED2 = 1;
+  81   2              // getDelay(1);
+  82   2              // LED2 = 0; 
+  83   2          // if(MODE6 == 0)
+  84   2          // {
+  85   2          //  LED1 = 1;
+  86   2          // }
+  87   2          // else 
+  88   2          // {
+  89   2          //  LED1 = 0;
+  90   2          // }
+  91   2      
+  92   2      
+  93   2        }//loop end
+  94   1        //one loop one move 
+  95   1      }
+  96          void initPins()
+  97          {
+  98   1        LED1 = 0;
+  99   1        LED2 = 0;//light  off first
+ 100   1        // LEFT_BI = 1;
+ 101   1        // LEFT_FI = 1;
+ 102   1        // RIGHT_BI = 1;
+ 103   1        // RIGHT_FI = 1;
+ 104   1        BUTTON1 = 1;
+ 105   1        BUTTON2 = 1;
+ 106   1        BUZZER = 1;
+ 107   1        MODE1 = 1;
+ 108   1        MODE2 = 1;
+ 109   1        MODE3 = 1;
+ 110   1        MODE4 = 1;
+ 111   1        MODE5 = 1;  
+ 112   1        MODE6 = 1;
+ 113   1        // WirelessInpute = 0;// not sure!!!
+ 114   1        // WirelessOutput = 0;
+ 115   1        P0M1 = 0x00;
+ 116   1          P0M0 = 0x01;
+C51 COMPILER V9.59.0.0   TEST                                                              07/12/2022 16:20:29 PAGE 3   
+
+ 117   1          P1M1 = 0x00;
+ 118   1          P1M0 = 0x01;
+ 119   1          P2M1 = 0x00;
+ 120   1          P2M0 = 0x0F;
+ 121   1          P3M1 = 0x00;
+ 122   1          P3M0 = 0x01;
+ 123   1        P4M1 = 0x00;
+ 124   1          P4M0 = 0x00;
+ 125   1          P5M1 = 0x00;
+ 126   1          P5M0 = 0x00;
+ 127   1          P6M1 = 0x00;
+ 128   1          P6M0 = 0x00;
+ 129   1          P7M1 = 0x00;
+ 130   1          P7M0 = 0x00;
+ 131   1      }
+ 132          void initSerial() //for  data trans
+ 133          {
+ 134   1        TMOD=0x20; //timer  T1 work_mode 2
+ 135   1        TL1=250; //
+ 136   1        TH1=250;
+ 137   1        TR1=1; //timer1 start
+ 138   1        PCON=0x80; //SMOD=1 
+ 139   1        SCON=0x50; //9600bit/s 
+ 140   1        TI=1;
+ 141   1      }
+ 142          void sendMode()//output data
+ 143          {
+ 144   1        if(TI == 1)//output  ready??     a reg for interpret   is interpreted
+ 145   1        {
+ 146   2          if(Flag==1) //have receive the data?
+ 147   2          {
+ 148   3            SBUF = Mode;
+ 149   3            Flag = 0;
+ 150   3            TI = 0;
+ 151   3          }
+ 152   2        }
+ 153   1      }
+ 154          void receiveMove()//inpute data
+ 155          {
+ 156   1        if(RI==1)//oh data is coming
+ 157   1        {
+ 158   2          Move = SBUF;
+ 159   2          Flag = 1;
+ 160   2          RI = 0;
+ 161   2        }
+ 162   1      }
+ 163          void startMove()
+ 164          {
+ 165   1        switch(Move)
+ 166   1        {
+ 167   2          case 0x31:carGoStraight();break;//ascii for number 1  ...
+ 168   2          case 0x32:carGOLeft();break;
+ 169   2          case 0x33:carGoRight();break;
+ 170   2          case 0x34:carBackStraight();break;
+ 171   2          case 0x35:carBackLeft();break;
+ 172   2          case 0x36:carBackRight();break;
+ 173   2          default :break;
+ 174   2        }
+ 175   1      }
+ 176          void carStop()
+ 177          {
+ 178   1        LEFT_BI = 0;
+C51 COMPILER V9.59.0.0   TEST                                                              07/12/2022 16:20:29 PAGE 4   
+
+ 179   1        LEFT_FI = 0;
+ 180   1        RIGHT_BI = 0;
+ 181   1        RIGHT_FI = 0;
+ 182   1      }
+ 183          void carGoStraight()
+ 184          {
+ 185   1        LEFT_BI = 0;
+ 186   1        LEFT_FI = 1;
+ 187   1        RIGHT_BI = 1;
+ 188   1        RIGHT_FI = 0;
+ 189   1      }
+ 190          void carGOLeft()
+ 191          {
+ 192   1        LEFT_BI = 1;
+ 193   1        LEFT_FI = 0;
+ 194   1        RIGHT_BI = 1;
+ 195   1        RIGHT_FI = 0;
+ 196   1      }
+ 197          void carGoRight()
+ 198          {
+ 199   1        LEFT_BI = 0;
+ 200   1        LEFT_FI = 1;
+ 201   1        RIGHT_BI = 0;
+ 202   1        RIGHT_FI = 1;
+ 203   1      }
+ 204          void carBackStraight()
+ 205          {
+ 206   1        LEFT_BI = 1;
+ 207   1        LEFT_FI = 0;
+ 208   1        RIGHT_BI = 1;
+ 209   1        RIGHT_FI = 0;
+ 210   1      }
+ 211          void carBackLeft()
+ 212          {
+ 213   1        LEFT_BI = 0;
+ 214   1        LEFT_FI = 0;
+ 215   1        RIGHT_BI = 1;
+ 216   1        RIGHT_FI = 0;
+ 217   1      }
+ 218          void carBackRight()
+ 219          {
+ 220   1        LEFT_BI = 1;
+ 221   1        LEFT_FI = 0;
+ 222   1        RIGHT_BI = 0;
+ 223   1        RIGHT_FI = 0;
+ 224   1      }
+ 225          void getLED1On()
+ 226          {
+ 227   1        LED1 = 1;
+ 228   1      }
+ 229          void getLED2On()
+ 230          {
+ 231   1        LED2 = 1;
+ 232   1      }
+ 233          void getLED1Off()
+ 234          {
+ 235   1        LED1 = 0;
+ 236   1      }
+ 237          void getLED2Off()
+ 238          {
+ 239   1        LED2 = 0;
+ 240   1      }
+C51 COMPILER V9.59.0.0   TEST                                                              07/12/2022 16:20:29 PAGE 5   
+
+ 241          void getBuzzerOn()
+ 242          {
+ 243   1        BUZZER = 1;
+ 244   1      }
+ 245          void getBuzzerOff()
+ 246          {
+ 247   1        BUZZER = 0;
+ 248   1      }
+ 249          unsigned char getMode()
+ 250          {
+ 251   1        unsigned char Mode = 0x21 ;//!
+ 252   1        
+ 253   1        if(MODE1 == 0)
+ 254   1        {
+ 255   2          Mode = 0x41 ;//A
+ 256   2        }
+ 257   1        else if(MODE2 == 0)
+ 258   1        {
+ 259   2          Mode = 0x42 ;//B
+ 260   2        }
+ 261   1        else if(MODE3 == 0)
+ 262   1        {
+ 263   2          Mode = 0x43 ;//C
+ 264   2        }
+ 265   1        else if(MODE4 == 0)
+ 266   1        {
+ 267   2          Mode = 0x44 ;//D
+ 268   2        }
+ 269   1        else if(MODE5 == 0)
+ 270   1        {
+ 271   2          Mode = 0x45 ;//E
+ 272   2        }
+ 273   1        else if(MODE6 == 0)
+ 274   1        {
+ 275   2          Mode = 0x46 ;//F
+ 276   2        }
+ 277   1        return Mode;
+ 278   1      }
+ 279          
+ 280          void getWirelessInput()//wireless part
+ 281          {
+ 282   1        
+ 283   1      }
+ 284          void getWirelessOutput()
+ 285          {
+ 286   1        
+ 287   1      }
+ 288          void getDelay(int TIME_MS)    //@11.0592MHz
+ 289          {
+ 290   1        unsigned char i, j;
+ 291   1        while(TIME_MS--)
+ 292   1        {
+ 293   2          i = 11;
+ 294   2          j = 190;
+ 295   2          do
+ 296   2          {
+ 297   3            while (--j);
+ 298   3          } while (--i);
+ 299   2        }
+ 300   1        
+ 301   1      }
+ 302          
+C51 COMPILER V9.59.0.0   TEST                                                              07/12/2022 16:20:29 PAGE 6   
+
+ 303          
+ 304          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    323    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      5    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

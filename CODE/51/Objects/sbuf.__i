@@ -1,0 +1,1 @@
+"sbuf.c" OPTIMIZE (8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\sbuf.lst) TABS (2) OBJECT(.\Objects\sbuf.obj)

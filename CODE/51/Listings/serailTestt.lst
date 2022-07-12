@@ -1,0 +1,123 @@
+C51 COMPILER V9.59.0.0   SERAILTESTT                                                       07/09/2022 09:28:46 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE SERAILTESTT
+OBJECT MODULE PLACED IN .\Objects\serailTestt.obj
+COMPILER INVOKED BY: E:\enviroment\Keiil5\C51\BIN\C51.EXE serailTestt.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRIN
+                    -T(.\Listings\serailTestt.lst) TABS(2) OBJECT(.\Objects\serailTestt.obj)
+
+line level    source
+
+   1          #include <reg51.c>
+*** WARNING C318 IN LINE 1 OF serailTestt.c: can't open file 'reg51.c'
+   2          #include <absacc.h> //many address name to use directly
+   3          //mode choice
+   4          sbit MODE1 = P0^0;
+*** ERROR C202 IN LINE 4 OF serailTestt.c: 'P0': undefined identifier
+   5          sbit MODE2 = P0^1;
+*** ERROR C202 IN LINE 5 OF serailTestt.c: 'P0': undefined identifier
+   6          sbit MODE3 = P0^2;
+*** ERROR C202 IN LINE 6 OF serailTestt.c: 'P0': undefined identifier
+   7          sbit MODE4 = P0^3;
+*** ERROR C202 IN LINE 7 OF serailTestt.c: 'P0': undefined identifier
+   8          sbit MODE5 = P0^4;
+*** ERROR C202 IN LINE 8 OF serailTestt.c: 'P0': undefined identifier
+   9          sbit MODE6 = P0^5;
+*** ERROR C202 IN LINE 9 OF serailTestt.c: 'P0': undefined identifier
+  10          //little toy
+  11          sbit LED1 = P1^0;
+*** ERROR C202 IN LINE 11 OF serailTestt.c: 'P1': undefined identifier
+  12          sbit LED2 = P1^1;
+*** ERROR C202 IN LINE 12 OF serailTestt.c: 'P1': undefined identifier
+  13          sbit BUZZER = P1^2;
+*** ERROR C202 IN LINE 13 OF serailTestt.c: 'P1': undefined identifier
+  14          sbit BUTTON1 = P2^7;
+*** ERROR C202 IN LINE 14 OF serailTestt.c: 'P2': undefined identifier
+  15          sbit BUTTON2 = P2^4;
+*** ERROR C202 IN LINE 15 OF serailTestt.c: 'P2': undefined identifier
+  16          //the car
+  17          sbit LEFT_BI = P2^3;
+*** ERROR C202 IN LINE 17 OF serailTestt.c: 'P2': undefined identifier
+  18          sbit LEFT_FI = P2^2;
+*** ERROR C202 IN LINE 18 OF serailTestt.c: 'P2': undefined identifier
+  19          sbit RIGHT_BI = P2^1;
+*** ERROR C202 IN LINE 19 OF serailTestt.c: 'P2': undefined identifier
+  20          sbit RIGHT_FI = P2^0;
+*** ERROR C202 IN LINE 20 OF serailTestt.c: 'P2': undefined identifier
+  21          sbit LEFT_H1 = P3^5;
+*** ERROR C202 IN LINE 21 OF serailTestt.c: 'P3': undefined identifier
+  22          sbit LEFT_H2 = P3^3;//int0
+*** ERROR C202 IN LINE 22 OF serailTestt.c: 'P3': undefined identifier
+  23          sbit RIGTH_H1 = P3^4;
+*** ERROR C202 IN LINE 23 OF serailTestt.c: 'P3': undefined identifier
+  24          sbit RIGHT_H2 = P3^2;//int1
+*** ERROR C202 IN LINE 24 OF serailTestt.c: 'P3': undefined identifier
+  25          //others
+  26          sbit SET = P3^6;//wireless part setting
+*** ERROR C202 IN LINE 26 OF serailTestt.c: 'P3': undefined identifier
+  27          sbit CS = P3^7;//wireless part sleep
+*** ERROR C202 IN LINE 27 OF serailTestt.c: 'P3': undefined identifier
+  28          sbit RST = P5^4;
+*** ERROR C202 IN LINE 28 OF serailTestt.c: 'P5': undefined identifier
+  29          sbit TXD = P3^1;
+*** ERROR C202 IN LINE 29 OF serailTestt.c: 'P3': undefined identifier
+  30          sbit RXD = P3^0;
+C51 COMPILER V9.59.0.0   SERAILTESTT                                                       07/09/2022 09:28:46 PAGE 2   
+
+*** ERROR C202 IN LINE 30 OF serailTestt.c: 'P3': undefined identifier
+  31          
+  32          unsigned char Mode;// sent to cam
+  33          unsigned char Move;//receive from cam
+  34          unsigned char Flag;//1 = have received data
+  35          unsigned char WirelessInpute;//this two only for wireless part
+  36          unsigned char WirelessOutput;
+  37          
+  38          void main()
+  39          {
+  40   1        initPins();//some pins  inital status
+  41   1        initSerial();//serial attribute init
+  42   1        IE = 0; // ping bi zhong duan
+  43   1        while(1)//start loop
+  44   1        {       
+  45   2      
+  46   2          sendMode(0x41);//test
+  47   2      
+  48   2              
+  49   2        }//loop end
+  50   1        //one loop one move 
+  51   1      }
+  52          void sendMode(unsigned char Data)//output data
+  53          {
+  54   1        if(TI == 1)//output  ready??     a reg for interpret   is interpreted
+  55   1        {
+  56   2          if(Flag==1) //have receive the data?
+  57   2          {
+  58   3            SBUF = Data;
+  59   3            Flag = 0;
+  60   3            TI = 0;
+  61   3          }
+  62   2        }
+  63   1      }
+  64          void receiveMove()//inpute data
+  65          {
+  66   1        unsigned char Data;
+  67   1        if(RI==1)//oh data is coming
+  68   1        {
+  69   2          Data = SBUF;
+  70   2          Flag = 1;
+  71   2          RI = 0;
+  72   2        }
+  73   1        return Data
+  74   1      }
+  75          void initSerial() //for  data trans
+  76          {
+  77   1        TMOD=0x20; //timer  T1 work_mode 2
+  78   1        TL1=250; //
+  79   1        TH1=250;
+  80   1        TR1=1; //timer1 start
+  81   1        PCON=0x80; //SMOD=1 
+  82   1        SCON=0x50; //9600bit/s 
+  83   1        TI=1;
+  84   1      }
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  24 ERROR(S)

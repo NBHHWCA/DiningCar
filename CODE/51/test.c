@@ -1,5 +1,5 @@
-#include <reg51.c>
-#include <absacc.h> //many address name to use directly
+#include "wca.h"
+
 //mode choice
 sbit MODE1 = P0^0;
 sbit MODE2 = P0^1;
@@ -34,32 +34,62 @@ unsigned char Move;//receive from cam
 unsigned char Flag;//1 = have received data
 unsigned char WirelessInpute;//this two only for wireless part
 unsigned char WirelessOutput;
+void initPins();
+void initSerial();
+void sendMode();
+void receiveMove();
+void startMove();
+void carStop();
+void carGoStraight();
+void carGOLeft();
+void carGoRight();
+void carBackStraight();
+void carBackLeft();
+void carBackRight();
+void getLED1On();
+void getLED2On();
+void getLED1Off();
+void getLED2Off();
+void getBuzzerOn();
+void getBuzzerOff();
+unsigned char getMode();
+void getWirelessInput();
+void getWirelessOutput();
+void getDelay(int TIME_BY_S);
 void main()
 {
 	initPins();//some pins  inital status
 	initSerial();//serial attribute init
 	IE = 0;	// ping bi zhong duan
-	while(1)//push the button to start car
-	{
-		if(BUTTON1 == 0)
-		{
-			getLED1On();
-			getDelay(2);//delay 2s
-			getLED1Off();
-			break;
-		}
-	}
 	while(1)//start loop
-	{				
-		if(BUTTON2 == 0)//to detective the weight
-		{
-			getLED2();
-			//getBuzzer();
-		}
-		Mode = getMode();//1-6 choose a mode
-		sentMode();
-		receiveMove();
-		startMove();			
+	{		
+		// carGoStraight();	
+		// getDelay(2000);
+		// carStop();
+		// getDelay(3000);
+		carGOLeft();
+		getDelay(280);
+		carStop();
+		getDelay(2000);
+		// carGoStraight();
+		// // LED1 = LEFT_BI;
+		// // LED2 = RIGHT_BI;
+		// LED1 = 1;
+        // getDelay(1);
+        // LED1 = 0;
+        // LED2 = 1;
+        // getDelay(1);
+        // LED2 = 0; 
+		// if(MODE6 == 0)
+		// {
+		// 	LED1 = 1;
+		// }
+		// else 
+		// {
+		// 	LED1 = 0;
+		// }
+
+
 	}//loop end
 	//one loop one move	
 }
@@ -67,21 +97,37 @@ void initPins()
 {
 	LED1 = 0;
 	LED2 = 0;//light  off first
-	LEFT_BI = 0;
-	LEFT_FI = 0;
-	RIGHT_BI = 0;
-	RIGHT_FI = 0;
+	// LEFT_BI = 1;
+	// LEFT_FI = 1;
+	// RIGHT_BI = 1;
+	// RIGHT_FI = 1;
 	BUTTON1 = 1;
 	BUTTON2 = 1;
-	BUZZER = 0;
+	BUZZER = 1;
 	MODE1 = 1;
 	MODE2 = 1;
 	MODE3 = 1;
 	MODE4 = 1;
 	MODE5 = 1;	
 	MODE6 = 1;
-	WirelessInpute = 0;// not sure!!!
-	WirelessOutput = 0;
+	// WirelessInpute = 0;// not sure!!!
+	// WirelessOutput = 0;
+	P0M1 = 0x00;
+    P0M0 = 0x01;
+    P1M1 = 0x00;
+    P1M0 = 0x01;
+    P2M1 = 0x00;
+    P2M0 = 0x0F;
+    P3M1 = 0x00;
+    P3M0 = 0x01;
+	P4M1 = 0x00;
+    P4M0 = 0x00;
+    P5M1 = 0x00;
+    P5M0 = 0x00;
+    P6M1 = 0x00;
+    P6M0 = 0x00;
+    P7M1 = 0x00;
+    P7M0 = 0x00;
 }
 void initSerial() //for  data trans
 {
@@ -127,26 +173,33 @@ void startMove()
 		default :break;
 	}
 }
-void carGoStraight()
-{
-	LEFT_BI = 0;
-	LEFT_FI = 1;
-	RIGHT_BI = 0;
-	RIGHT_FI = 1;
-}
-void carGOLeft()
+void carStop()
 {
 	LEFT_BI = 0;
 	LEFT_FI = 0;
 	RIGHT_BI = 0;
-	RIGHT_FI = 1;
+	RIGHT_FI = 0;
+}
+void carGoStraight()
+{
+	LEFT_BI = 0;
+	LEFT_FI = 1;
+	RIGHT_BI = 1;
+	RIGHT_FI = 0;
+}
+void carGOLeft()
+{
+	LEFT_BI = 1;
+	LEFT_FI = 0;
+	RIGHT_BI = 1;
+	RIGHT_FI = 0;
 }
 void carGoRight()
 {
 	LEFT_BI = 0;
 	LEFT_FI = 1;
 	RIGHT_BI = 0;
-	RIGHT_FI = 0;
+	RIGHT_FI = 1;
 }
 void carBackStraight()
 {
@@ -196,10 +249,7 @@ void getBuzzerOff()
 unsigned char getMode()
 {
 	unsigned char Mode = 0x21 ;//!
-	if(isError())//only for debug
-	{
-		getBuzzer();
-	}
+	
 	if(MODE1 == 0)
 	{
 		Mode = 0x41 ;//A
@@ -226,11 +276,7 @@ unsigned char getMode()
 	}
 	return Mode;
 }
-bool isError()//only for debug
-{
-	if(MODE1+MODE2+MODE3+MODE4+MODE5+MODE6 < 5) return True;
-	return False;	
-}
+
 void getWirelessInput()//wireless part
 {
 	
@@ -239,25 +285,20 @@ void getWirelessOutput()
 {
 	
 }
-void getDelay(int TIME_BY_S)//copy from stc-isp   dan_wei:s
+void getDelay(int TIME_MS)		//@11.0592MHz
 {
-	unsigned char i, j, k;
-
-	_nop_();
-	_nop_();
-	i = 43;
-	j = 6;
-	k = 203;
-	while(TIME_BY_S--)
+	unsigned char i, j;
+	while(TIME_MS--)
 	{
+		i = 11;
+		j = 190;
 		do
 		{
-			do
-			{
-				while (--k);
-			} while (--j);
+			while (--j);
 		} while (--i);
 	}
+	
 }
+
 
 
